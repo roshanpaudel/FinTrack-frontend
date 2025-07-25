@@ -37,7 +37,7 @@ Track your income and expenses, view summaries, and manage your transactions eas
 1. Clone the repository
 
 ```bash
-git clone https://github.com/roshanpaudel/FinTrack-backend.git
+git clone https://github.com/roshanpaudel/FinTrack-frontend.git
 cd finance-tracker
 Backend setup
 
