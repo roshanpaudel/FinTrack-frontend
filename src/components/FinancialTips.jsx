@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 const financialTips = [
   {
     tips: "Focus on value, not just price.",
@@ -58,14 +58,21 @@ const financialTips = [
   },
 ];
 export const FinancialTips = () => {
+  const [showQuotes, setShowQuotes] = useState(financialTips[0]);
+  const { tips, quote, author } = showQuotes;
 
+  useEffect(() => {
+    setInterval(() => {
+      setShowQuotes(
+        financialTips[Math.floor(Math.random() * financialTips.length)]
+      );
+    }, 4000);
+  }, []);
   return (
     <div>
-      <h4>Learn to grow your wealth.</h4>
-      <div className="fw-bolder">
-        " An investment in knowledge pays the best interest. "
-      </div>
-      <div>- Benjamin Franklin</div>
+      <h4>{tips}</h4>
+      <div className="fw-bolder">" {quote} "</div>
+      <div> - {author}</div>
     </div>
   );
 };
