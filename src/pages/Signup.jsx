@@ -14,11 +14,11 @@ const Signup = () => {
   return (
     <Container className="p-5">
       <Row className="bg-dark p-5 rounded">
-        <Col>
+        <Col md={7}>
           <FinancialTips />
         </Col>
-        <Col>
-          <SignUpForm handleSignUpSubmit={handleSignUpSubmit} ></SignUpForm>
+        <Col md={5}>
+          <SignUpForm handleSignUpSubmit={handleSignUpSubmit}></SignUpForm>
         </Col>
       </Row>
     </Container>

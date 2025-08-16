@@ -69,10 +69,15 @@ export const FinancialTips = () => {
     }, 4000);
   }, []);
   return (
-    <div>
-      <h4>{tips}</h4>
-      <div className="fw-bolder">" {quote} "</div>
-      <div> - {author}</div>
+    <div
+      className="d-flex align-items-center text-center"
+      style={{ height: "100%" }}
+    >
+      <div className="p-5">
+        <h4>{tips}</h4>
+        <div className="fw-bolder">" {quote} "</div>
+        <div> - {author}</div>
+      </div>
     </div>
   );
 };
