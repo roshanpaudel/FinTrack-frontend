@@ -10,24 +10,26 @@ export const SignUpForm = () => {
     confirmPassword: "",
   });
   const [passwordMatch, setPasswordMatch] = useState(true);
-  const [email, setEmailMatch] = useState(false);
-
+  const [emailAvailable, setEmailAvailable] = useState(true);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    if (name === "email") {
-      const response = checkEmail(formData.email);
-      console.log("Email check response:", response);
-    }
+
     if (name === "confirmPassword") {
       if (value !== formData.password) {
         setPasswordMatch(false);
       } else setPasswordMatch(true);
     }
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password == formData.confirmPassword) {
+    console.log("event submitted:", e);
+    const emailToCheck = formData.email;
+    const response = await checkEmail(emailToCheck);
+    setEmailAvailable(response.available);
+    console.log("Email check response:", response);
+
+    if (response.available && formData.password === formData.confirmPassword) {
       const { confirmPassword, ...dataToSend } = formData;
       // send data to API
       console.log("Form submitted:", dataToSend);
@@ -62,6 +64,11 @@ export const SignUpForm = () => {
             onChange={handleChange}
             required
           />
+          {!emailAvailable && (
+            <Form.Text className="text-danger">
+              Email already exists. Please login or use a different email.
+            </Form.Text>
+          )}
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formPassword">
