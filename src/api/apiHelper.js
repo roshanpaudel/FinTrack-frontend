@@ -1,11 +1,11 @@
 import axios from "axios";
 
 const apiEP = import.meta.env.PROD ? "/api/v1/" : "localhost:8000/api/v1/";
-const apiHelper = (method, data) => {
+export const apiHelper = async ({ method, endpoint, data }) => {
   try {
-    const response = axios({
+    const response = await axios({
       method: method,
-      url: apiEP,
+      url: apiEP + endpoint,
       data: data,
       headers: { "Content-Type": "application/json" },
     });

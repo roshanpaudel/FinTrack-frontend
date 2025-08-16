@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
+import { checkEmail } from "../api/authApi.js";
 
 export const SignUpForm = () => {
   const [formData, setFormData] = useState({
@@ -9,14 +10,17 @@ export const SignUpForm = () => {
     confirmPassword: "",
   });
   const [passwordMatch, setPasswordMatch] = useState(true);
+  const [email, setEmailMatch] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+    if (name === "email") {
+      const response = checkEmail(formData.email);
+      console.log("Email check response:", response);
+    }
     if (name === "confirmPassword") {
-      // Optionally, you can add validation for password match here
       if (value !== formData.password) {
-        // Handle password mismatch (e.g., show an error message)
         setPasswordMatch(false);
       } else setPasswordMatch(true);
     }
