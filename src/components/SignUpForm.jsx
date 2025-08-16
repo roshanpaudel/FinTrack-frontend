@@ -1,14 +1,14 @@
-import React from "react";
-import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { useState } from "react";
+import { Container, Form, Button } from "react-bootstrap";
 
-export const SignUpForm = ({ handleSignUpSubmit }) => {
-  const [formData, setFormData] = React.useState({
+export const SignUpForm = () => {
+  const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [passwordMatch, setPasswordMatch] = React.useState(true);
+  const [passwordMatch, setPasswordMatch] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,9 +21,20 @@ export const SignUpForm = ({ handleSignUpSubmit }) => {
       } else setPasswordMatch(true);
     }
   };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (formData.password == formData.confirmPassword) {
+      const { confirmPassword, ...dataToSend } = formData;
+      // send data to API
+      console.log("Form submitted:", dataToSend);
+
+      return;
+    }
+  };
+
   return (
     <Container className="signup-form rounded p-5 ">
-      <Form onSubmit={handleSignUpSubmit}>
+      <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="formFullName">
           <Form.Label>Full Name</Form.Label>
           <Form.Control

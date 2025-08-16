@@ -3,12 +3,6 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { FinancialTips } from "../components/FinancialTips";
 import { SignUpForm } from "../components/SignUpForm";
-import React from "react";
-
-const handleSignUpSubmit = (e) => {
-  e.preventDefault();
-  // Handle sign up logic here
-};
 
 const Signup = () => {
   return (
@@ -18,7 +12,7 @@ const Signup = () => {
           <FinancialTips />
         </Col>
         <Col md={5}>
-          <SignUpForm handleSignUpSubmit={handleSignUpSubmit}></SignUpForm>
+          <SignUpForm></SignUpForm>
         </Col>
       </Row>
     </Container>
