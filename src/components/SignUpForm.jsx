@@ -62,6 +62,7 @@ export const SignUpForm = () => {
             autoComplete="username"
             value={formData.email}
             onChange={handleChange}
+            onFocus={() => setEmailAvailable(true)}
             required
           />
           {!emailAvailable && (
