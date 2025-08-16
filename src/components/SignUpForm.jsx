@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
 
 export const SignUpForm = ({ handleSignUpSubmit }) => {
   const [formData, setFormData] = React.useState({
@@ -22,72 +22,69 @@ export const SignUpForm = ({ handleSignUpSubmit }) => {
     }
   };
   return (
-    <Form onSubmit={handleSignUpSubmit}>
-      <Form.Group className="mb-3" controlId="formFullName">
-        <Form.Label>Full Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Full Name"
-          name="fullName"
-          value={formData.fullName}
-          onChange={handleChange}
-          required
-        />
-      </Form.Group>
+    <Container className="signup-form rounded p-5 ">
+      <Form onSubmit={handleSignUpSubmit}>
+        <Form.Group className="mb-3" controlId="formFullName">
+          <Form.Label>Full Name</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Full Name"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Enter email"
-          name="email"
-          autoComplete="username"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="formEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Enter email"
+            name="email"
+            autoComplete="username"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          name="password"
-          autoComplete="new-password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="formPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            name="password"
+            autoComplete="new-password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formConfirmPassword">
-        <Form.Label>Confirm Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Confirm Password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          autoComplete="new-password"
-          required
-        />
-        {console.log(
-          "Password:",
-          formData.password,
-          "Confirm:",
-          formData.confirmPassword,
-          "Match:",
-          passwordMatch
-        )}
-        {!passwordMatch && (
-          <Form.Text className="text-danger">Passwords do not match.</Form.Text>
-        )}
-      </Form.Group>
+        <Form.Group className="mb-3" controlId="formConfirmPassword">
+          <Form.Label>Confirm Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Confirm Password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            autoComplete="new-password"
+            required
+          />
 
-      <Button variant="primary" type="submit" className="w-100">
-        Sign Up
-      </Button>
-    </Form>
+          {!passwordMatch && (
+            <Form.Text className="text-danger">
+              Passwords do not match.
+            </Form.Text>
+          )}
+        </Form.Group>
+
+        <Button variant="primary" type="submit" className="w-100">
+          Sign Up
+        </Button>
+      </Form>
+    </Container>
   );
 };
