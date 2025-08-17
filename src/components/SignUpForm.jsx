@@ -10,7 +10,7 @@ export const SignUpForm = () => {
     confirmPassword: "",
   });
   const [passwordMatch, setPasswordMatch] = useState(true);
-  const [emailAvailable, setEmailAvailable] = useState(true);
+  const [emailExists, setEmailExists] = useState(true);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -29,12 +29,12 @@ export const SignUpForm = () => {
       console.log("Error checking email:", responseEmail.message);
       return;
     } else {
-      setEmailAvailable(responseEmail.available);
+      setEmailExists(responseEmail.userExists);
       console.log("Email check response:", responseEmail);
     }
 
     if (
-      responseEmail.available &&
+      !responseEmail.userExists &&
       formData.password === formData.confirmPassword
     ) {
       const { confirmPassword, ...dataToSend } = formData;
@@ -72,10 +72,10 @@ export const SignUpForm = () => {
             autoComplete="username"
             value={formData.email}
             onChange={handleChange}
-            onFocus={() => setEmailAvailable(true)}
+            onFocus={() => setEmailExists(false)}
             required
           />
-          {!emailAvailable && (
+          {emailExists && (
             <Form.Text className="text-danger">
               Email already exists. Please login or use a different email.
             </Form.Text>

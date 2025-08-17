@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
-import { checkEmail, insertSignupData } from "../api/authApi.js";
+import { checkEmail, loginUserCheck } from "../api/authApi.js";
+import { useNavigate } from "react-router-dom";
 
 export const LoginForm = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [emailAvailable, setEmailAvailable] = useState(true);
+  const [emailExists, setEmailExists] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,18 +24,22 @@ export const LoginForm = () => {
       console.log("Error checking email:", responseEmail.message);
       return;
     } else {
-      setEmailAvailable(responseEmail.available);
-      console.log("Email check response:", responseEmail);
+      setEmailExists(responseEmail.userExists);
     }
 
-    if (!responseEmail.available) {
-      const { confirmPassword, ...dataToSend } = formData;
+    if (responseEmail.userExists) {
+      const dataToSend = { email: formData.email, password: formData.password };
+      console.log("Data send for Login:", dataToSend);
       // send data to API
-      const responseSignup = await insertSignupData(dataToSend);
-      console.log("Form submitted:", dataToSend);
-      if (responseSignup.status === "error") {
-        console.log("Error during signup:", responseSignup);
+      const responseLogin = await loginUserCheck(dataToSend);
+      console.log("Login check:", responseLogin);
+      if (responseLogin.status === "error") {
+        console.log("Error during Login:", responseLogin);
         return;
+      }
+      if (responseLogin.isMatch) {
+        // Handle successful login
+        navigate("/");
       }
     }
   };
@@ -49,10 +56,10 @@ export const LoginForm = () => {
             autoComplete="username"
             value={formData.email}
             onChange={handleChange}
-            onFocus={() => setEmailAvailable(true)}
+            onFocus={() => setEmailExists(true)}
             required
           />
-          {!emailAvailable && (
+          {!emailExists && (
             <Form.Text className="text-danger">
               Email does not exists.
             </Form.Text>
