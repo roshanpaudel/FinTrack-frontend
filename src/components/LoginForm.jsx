@@ -11,6 +11,7 @@ export const LoginForm = () => {
     password: "",
   });
   const [emailExists, setEmailExists] = useState(true);
+  const [canLogin, setCanLogin] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,11 +36,13 @@ export const LoginForm = () => {
       console.log("Login check:", responseLogin);
       if (responseLogin.status === "error") {
         console.log("Error during Login:", responseLogin);
+        setCanLogin(false);
         return;
       }
       if (responseLogin.isMatch) {
         // Handle successful login
         navigate("/");
+        setCanLogin(true);
       }
     }
   };
@@ -77,6 +80,11 @@ export const LoginForm = () => {
             onChange={handleChange}
             required
           />
+          {!canLogin && (
+            <Form.Text className="text-danger">
+              Password doesn't match.
+            </Form.Text>
+          )}
         </Form.Group>
 
         <Button variant="primary" type="submit" className="w-100">

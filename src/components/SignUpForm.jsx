@@ -10,7 +10,7 @@ export const SignUpForm = () => {
     confirmPassword: "",
   });
   const [passwordMatch, setPasswordMatch] = useState(true);
-  const [emailExists, setEmailExists] = useState(true);
+  const [emailExists, setEmailExists] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
