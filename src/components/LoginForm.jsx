@@ -11,7 +11,7 @@ export const LoginForm = () => {
     password: "",
   });
   const [emailExists, setEmailExists] = useState(true);
-  const [canLogin, setCanLogin] = useState(false);
+  const [canLogin, setCanLogin] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
