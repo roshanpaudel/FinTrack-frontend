@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import { checkEmail, loginUserCheck } from "../api/authApi.js";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -41,12 +40,8 @@ export const LoginForm = () => {
         return;
       }
       if (responseLogin.isMatch) {
-        // store token and set auth header
-        if (responseLogin.accessToken) {
-          localStorage.setItem("accessToken", responseLogin.accessToken);
-          axios.defaults.headers.common["Authorization"] = `Bearer ${responseLogin.accessToken}`;
-        }
-        navigate("/dashboard"); // navigate after successful login
+        // Handle successful login
+        navigate("/");
         setCanLogin(true);
       }
     }
