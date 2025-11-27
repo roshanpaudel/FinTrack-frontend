@@ -1,7 +1,10 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 
 export const DefaultLayout = () => {
+  const location = useLocation();
+  const hideNav = ["/login", "/signup"].includes(location.pathname);
+
   const layoutStyle = {
     minHeight: "100vh", // make page full height
     display: "flex",
@@ -28,20 +31,24 @@ export const DefaultLayout = () => {
             Fintrack
           </Navbar.Brand>
 
-          <Navbar.Toggle aria-controls="main-navbar" />
-          <Navbar.Collapse id="main-navbar">
-            <Nav className="ms-auto">
-              <Nav.Link as={NavLink} to="/dashboard">
-                Dashboard
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/transactions">
-                Transactions
-              </Nav.Link>
-              <Nav.Link as={NavLink} to="/profile">
-                Profile
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
+          {!hideNav && (
+            <>
+              <Navbar.Toggle aria-controls="main-navbar" />
+              <Navbar.Collapse id="main-navbar">
+                <Nav className="ms-auto">
+                  <Nav.Link as={NavLink} to="/dashboard">
+                    Dashboard
+                  </Nav.Link>
+                  <Nav.Link as={NavLink} to="/transactions">
+                    Transactions
+                  </Nav.Link>
+                  <Nav.Link as={NavLink} to="/profile">
+                    Profile
+                  </Nav.Link>
+                </Nav>
+              </Navbar.Collapse>
+            </>
+          )}
         </Container>
       </Navbar>
 
