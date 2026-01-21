@@ -26,3 +26,11 @@ export const loginUserCheck = (userData) => {
   };
   return apiHelper(obj);
 };
+
+export const refreshAccessToken = () => {
+  const obj = {
+    method: "POST",
+    endpoint: "auth/refresh",
+  };
+  return apiHelper(obj);
+};

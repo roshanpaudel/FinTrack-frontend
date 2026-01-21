@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { fetchProfile, updateProfile } from "../api/profileApi";
 
 const defaultProfile = {
@@ -17,6 +18,7 @@ function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const loadProfile = async () => {
     setIsLoading(true);
@@ -62,14 +64,24 @@ function Profile() {
     setIsSaving(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    navigate("/login", { replace: true });
+  };
+
   return (
     <Container className="py-5">
-      <Row className="mb-4">
+      <Row className="mb-4 align-items-center">
         <Col>
           <h1 className="fw-bold">Profile</h1>
           <p className="text-muted mb-0">
             Keep your contact details up to date.
           </p>
+        </Col>
+        <Col xs="auto">
+          <Button variant="outline-danger" onClick={handleLogout}>
+            Logout
+          </Button>
         </Col>
       </Row>
       <Row>
