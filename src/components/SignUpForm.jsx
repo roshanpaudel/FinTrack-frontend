@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import { checkEmail, insertSignupData } from "../api/authApi.js";
+import { Link } from "react-router-dom";
 
 export const SignUpForm = () => {
   const [formData, setFormData] = useState({
@@ -117,6 +118,9 @@ export const SignUpForm = () => {
         <Button variant="primary" type="submit" className="w-100">
           Sign Up
         </Button>
+        <div className="text-center mt-3">
+          Already a member? <Link to="/login">Login here</Link>
+        </div>
       </Form>
     </Container>
   );
