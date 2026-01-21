@@ -17,6 +17,7 @@ export const LoginForm = () => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
+  // Roshan: Handle form submit and call auth APIs.
   const handleSubmit = async (e) => {
     e.preventDefault();
     const emailToCheck = formData.email;
@@ -40,8 +41,9 @@ export const LoginForm = () => {
         return;
       }
       if (responseLogin.isMatch) {
-        // Handle successful login
-        navigate("/");
+        // Codex: Persist token and redirect to the protected dashboard on success.
+        localStorage.setItem("accessToken", responseLogin.accessToken);
+        navigate("/dashboard");
         setCanLogin(true);
       }
     }

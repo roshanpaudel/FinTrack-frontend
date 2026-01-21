@@ -18,7 +18,7 @@ export const insertSignupData = (userData) => {
   return apiHelper(obj);
 };
 export const loginUserCheck = (userData) => {
-  console.log("Data to send:", userData);
+  console.log("Data to send authApi.js:", userData);
   const obj = {
     method: "POST",
     endpoint: "auth/login",
