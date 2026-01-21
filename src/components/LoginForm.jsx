@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Container, Form, Button } from "react-bootstrap";
 import { checkEmail, loginUserCheck } from "../api/authApi.js";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const LoginForm = () => {
   const navigate = useNavigate();
@@ -92,6 +92,9 @@ export const LoginForm = () => {
         <Button variant="primary" type="submit" className="w-100">
           Login
         </Button>
+        <div className="text-center mt-3">
+          New user? <Link to="/signup">Signup here</Link>
+        </div>
       </Form>
     </Container>
   );
