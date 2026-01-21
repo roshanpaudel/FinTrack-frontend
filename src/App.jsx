@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import "./App.css"; // This line imports the CSS file
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/dashboard";
+import Transactions from "./pages/transactions";
+import Profile from "./pages/Profile";
 import { DefaultLayout } from "./layouts/DefaultLayout";
 import PrivateRoute from "./components/PrivateRoute";
 function App() {
@@ -20,6 +22,8 @@ function App() {
           {/* Codex: Protect dashboard behind PrivateRoute. */}
           <Route element={<PrivateRoute />}>
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Route>
       </Routes>

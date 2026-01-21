@@ -1,30 +1,26 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Container,
-  Form,
-  Row,
-  Table,
-} from "react-bootstrap";
-import { createTransaction, fetchTransactions } from "../api/transactionApi";
+import { Card, Col, Container, Row } from "react-bootstrap";
+import { fetchTransactions } from "../api/transactionApi";
 
-const defaultFormState = {
-  detail: "",
-  amount: "",
-  type: "debit",
-  category: "General",
-  transactionDate: "",
+const chartColors = [
+  "#FF9F1C",
+  "#2EC4B6",
+  "#E71D36",
+  "#011627",
+  "#6C5CE7",
+  "#00B894",
+];
+
+const getCoordinatesForPercent = (percent) => {
+  const x = Math.cos(2 * Math.PI * percent);
+  const y = Math.sin(2 * Math.PI * percent);
+  return [x, y];
 };
 
 function Dashboard() {
-  const [formData, setFormData] = useState(defaultFormState);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const loadTransactions = async () => {
@@ -42,36 +38,6 @@ function Dashboard() {
   useEffect(() => {
     loadTransactions();
   }, []);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    const payload = {
-      detail: formData.detail.trim(),
-      amount: formData.amount,
-      type: formData.type,
-      category: formData.category.trim() || "General",
-      transactionDate: formData.transactionDate || undefined,
-    };
-
-    const response = await createTransaction(payload);
-    if (response?.status === "success") {
-      setFormData(defaultFormState);
-      setErrorMessage("");
-      await loadTransactions();
-    } else {
-      setErrorMessage(response?.message || "Unable to save transaction.");
-    }
-    setIsSubmitting(false);
-  };
 
   const summary = useMemo(() => {
     const totals = transactions.reduce(
@@ -92,6 +58,27 @@ function Dashboard() {
     };
   }, [transactions]);
 
+  const categoryTotals = useMemo(() => {
+    const totals = transactions.reduce((acc, item) => {
+      const label = item.category || "General";
+      acc[label] = (acc[label] || 0) + Number(item.amount || 0);
+      return acc;
+    }, {});
+    return Object.entries(totals)
+      .map(([label, value]) => ({ label, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [transactions]);
+
+  const totalByCategory = categoryTotals.reduce(
+    (sum, item) => sum + item.value,
+    0
+  );
+
+  const maxCategoryValue = categoryTotals.reduce(
+    (maxValue, item) => Math.max(maxValue, item.value),
+    0
+  );
+
   const formatCurrency = (value) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -102,89 +89,15 @@ function Dashboard() {
     <Container className="py-5">
       <Row className="mb-4">
         <Col>
-          <h1 className="fw-bold">Transaction Dashboard</h1>
+          <h1 className="fw-bold">Dashboard</h1>
           <p className="text-muted mb-0">
-            Track your spending and income in one place.
+            Overview of spending by category.
           </p>
         </Col>
       </Row>
       <Row className="g-4">
-        <Col lg={4}>
+        <Col lg={12}>
           <Card className="shadow-sm">
-            <Card.Body>
-              <Card.Title className="mb-3">Add Transaction</Card.Title>
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="detail">
-                  <Form.Label>Detail</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="detail"
-                    placeholder="Groceries, Salary, Rent..."
-                    value={formData.detail}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="amount">
-                  <Form.Label>Amount</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="amount"
-                    min="0"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="type">
-                  <Form.Label>Type</Form.Label>
-                  <Form.Select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="debit">Debit</option>
-                    <option value="credit">Credit</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="category">
-                  <Form.Label>Category</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="category"
-                    placeholder="General"
-                    value={formData.category}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="transactionDate">
-                  <Form.Label>Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    name="transactionDate"
-                    value={formData.transactionDate}
-                    onChange={handleChange}
-                  />
-                </Form.Group>
-                {errorMessage ? (
-                  <div className="text-danger mb-3">{errorMessage}</div>
-                ) : null}
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-100"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Saving..." : "Save Transaction"}
-                </Button>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={8}>
-          <Card className="shadow-sm mb-4">
             <Card.Body className="d-flex flex-wrap gap-3">
               <div>
                 <div className="text-muted">Total Credit</div>
@@ -200,56 +113,119 @@ function Dashboard() {
               </div>
             </Card.Body>
           </Card>
-          <Card className="shadow-sm">
+        </Col>
+        <Col lg={6}>
+          <Card className="shadow-sm h-100">
             <Card.Body>
-              <Card.Title className="mb-3">Recent Transactions</Card.Title>
+              <Card.Title className="mb-3">Category Split</Card.Title>
               {isLoading ? (
-                <div className="text-muted">Loading transactions...</div>
+                <div className="text-muted">Loading charts...</div>
+              ) : totalByCategory ? (
+                <div className="d-flex flex-wrap gap-4 align-items-center">
+                  <svg
+                    viewBox="-1 -1 2 2"
+                    style={{ width: 220, height: 220 }}
+                  >
+                    {(() => {
+                      let cumulativePercent = 0;
+                      return categoryTotals.map((slice, index) => {
+                        const slicePercent = slice.value / totalByCategory;
+                        const [startX, startY] =
+                          getCoordinatesForPercent(cumulativePercent);
+                        cumulativePercent += slicePercent;
+                        const [endX, endY] =
+                          getCoordinatesForPercent(cumulativePercent);
+                        const largeArcFlag = slicePercent > 0.5 ? 1 : 0;
+                        const pathData = [
+                          `M ${startX} ${startY}`,
+                          `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                          "L 0 0",
+                        ].join(" ");
+                        const color = chartColors[index % chartColors.length];
+                        return <path key={slice.label} d={pathData} fill={color} />;
+                      });
+                    })()}
+                  </svg>
+                  <div className="d-flex flex-column gap-2">
+                    {categoryTotals.map((item, index) => (
+                      <div key={item.label} className="d-flex align-items-center">
+                        <span
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: 4,
+                            backgroundColor:
+                              chartColors[index % chartColors.length],
+                            display: "inline-block",
+                            marginRight: 8,
+                          }}
+                        />
+                        <span className="me-2">{item.label}</span>
+                        <span className="text-muted">
+                          {formatCurrency(item.value)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ) : (
-                <Table responsive hover>
-                  <thead>
-                    <tr>
-                      <th>Detail</th>
-                      <th>Category</th>
-                      <th>Date</th>
-                      <th>Type</th>
-                      <th className="text-end">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.length ? (
-                      transactions.map((item) => (
-                        <tr key={item._id}>
-                          <td>{item.detail}</td>
-                          <td>{item.category || "General"}</td>
-                          <td>
-                            {item.transactionDate
-                              ? new Date(item.transactionDate).toLocaleDateString()
-                              : "-"}
-                          </td>
-                          <td>
-                            <Badge bg={item.type === "credit" ? "success" : "danger"}>
-                              {item.type}
-                            </Badge>
-                          </td>
-                          <td className="text-end">
-                            {formatCurrency(item.amount)}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="text-center text-muted py-4">
-                          No transactions yet. Add your first one.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
+                <div className="text-muted">No data to visualize yet.</div>
               )}
             </Card.Body>
           </Card>
         </Col>
+        <Col lg={6}>
+          <Card className="shadow-sm h-100">
+            <Card.Body>
+              <Card.Title className="mb-3">Category Totals</Card.Title>
+              {isLoading ? (
+                <div className="text-muted">Loading charts...</div>
+              ) : categoryTotals.length ? (
+                <div className="d-flex flex-column gap-3">
+                  {categoryTotals.map((item, index) => {
+                    const widthPercent = maxCategoryValue
+                      ? Math.round((item.value / maxCategoryValue) * 100)
+                      : 0;
+                    return (
+                      <div key={item.label}>
+                        <div className="d-flex justify-content-between mb-1">
+                          <span className="fw-semibold">{item.label}</span>
+                          <span className="text-muted">
+                            {formatCurrency(item.value)}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            height: 10,
+                            backgroundColor: "#F1F3F5",
+                            borderRadius: 999,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${widthPercent}%`,
+                              backgroundColor:
+                                chartColors[index % chartColors.length],
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-muted">No data to visualize yet.</div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+        {errorMessage ? (
+          <Col lg={12}>
+            <div className="text-danger">{errorMessage}</div>
+          </Col>
+        ) : null}
       </Row>
     </Container>
   );
