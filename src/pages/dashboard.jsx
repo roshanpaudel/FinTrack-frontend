@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Card, Col, Container, Row } from "react-bootstrap";
-import { fetchTransactions } from "../api/transactionApi";
+import { useTransactions } from "../context/TransactionsContext";
 
 const chartColors = [
   "#FF9F1C",
@@ -19,25 +19,19 @@ const getCoordinatesForPercent = (percent) => {
 };
 
 function Dashboard() {
-  const [transactions, setTransactions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const loadTransactions = async () => {
-    setIsLoading(true);
-    const response = await fetchTransactions();
-    if (response?.status === "success") {
-      setTransactions(response.transactions || []);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(response?.message || "Unable to load transactions.");
-    }
-    setIsLoading(false);
-  };
+  const {
+    transactions,
+    isLoading,
+    errorMessage,
+    hasLoaded,
+    loadTransactions,
+  } = useTransactions();
 
   useEffect(() => {
-    loadTransactions();
-  }, []);
+    if (!hasLoaded) {
+      loadTransactions();
+    }
+  }, [hasLoaded, loadTransactions]);
 
   const summary = useMemo(() => {
     const totals = transactions.reduce(

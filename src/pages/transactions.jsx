@@ -10,7 +10,7 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
-import { createTransaction, fetchTransactions } from "../api/transactionApi";
+import { useTransactions } from "../context/TransactionsContext";
 
 const defaultFormState = {
   detail: "",
@@ -30,26 +30,21 @@ const creditCategories = [
 
 function Transactions() {
   const [formData, setFormData] = useState(defaultFormState);
-  const [transactions, setTransactions] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const loadTransactions = async () => {
-    setIsLoading(true);
-    const response = await fetchTransactions();
-    if (response?.status === "success") {
-      setTransactions(response.transactions || []);
-      setErrorMessage("");
-    } else {
-      setErrorMessage(response?.message || "Unable to load transactions.");
-    }
-    setIsLoading(false);
-  };
+  const {
+    transactions,
+    isLoading,
+    isSubmitting,
+    errorMessage,
+    hasLoaded,
+    loadTransactions,
+    addTransaction,
+  } = useTransactions();
 
   useEffect(() => {
-    loadTransactions();
-  }, []);
+    if (!hasLoaded) {
+      loadTransactions();
+    }
+  }, [hasLoaded, loadTransactions]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -70,7 +65,6 @@ function Transactions() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
     const payload = {
       detail: formData.detail.trim(),
       amount: formData.amount,
@@ -79,15 +73,10 @@ function Transactions() {
       transactionDate: formData.transactionDate || undefined,
     };
 
-    const response = await createTransaction(payload);
+    const response = await addTransaction(payload);
     if (response?.status === "success") {
       setFormData(defaultFormState);
-      setErrorMessage("");
-      await loadTransactions();
-    } else {
-      setErrorMessage(response?.message || "Unable to save transaction.");
     }
-    setIsSubmitting(false);
   };
 
   const summary = useMemo(() => {
