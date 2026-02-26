@@ -20,16 +20,13 @@ const defaultFormState = {
   transactionDate: "",
 };
 
-const creditCategories = [
-  "Utilities",
-  "Transportation",
-  "Entertainment",
-  "Groceries",
-  "Health",
-];
-
 function Transactions() {
   const [formData, setFormData] = useState(defaultFormState);
+  const [editingTransactionId, setEditingTransactionId] = useState("");
+  const [categoryEdit, setCategoryEdit] = useState({
+    oldCategory: "",
+    newCategory: "",
+  });
   const {
     transactions,
     isLoading,
@@ -38,6 +35,8 @@ function Transactions() {
     hasLoaded,
     loadTransactions,
     addTransaction,
+    editTransaction,
+    reassignTransactionCategory,
   } = useTransactions();
 
   useEffect(() => {
@@ -48,19 +47,36 @@ function Transactions() {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData((prev) => {
-      if (name === "type") {
-        return {
-          ...prev,
-          type: value,
-          category: value === "credit" ? creditCategories[0] : "General",
-        };
-      }
-      return {
-        ...prev,
-        [name]: value,
-      };
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const resetForm = () => {
+    setFormData(defaultFormState);
+    setEditingTransactionId("");
+  };
+
+  const handleEditClick = (transaction) => {
+    setEditingTransactionId(transaction._id);
+    setFormData({
+      detail: transaction.detail || "",
+      amount: String(transaction.amount || ""),
+      type: transaction.type || "debit",
+      category: transaction.category || "General",
+      transactionDate: transaction.transactionDate
+        ? new Date(transaction.transactionDate).toISOString().slice(0, 10)
+        : "",
     });
+  };
+
+  const handleCategoryEditChange = (event) => {
+    const { name, value } = event.target;
+    setCategoryEdit((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (event) => {
@@ -73,9 +89,31 @@ function Transactions() {
       transactionDate: formData.transactionDate || undefined,
     };
 
-    const response = await addTransaction(payload);
+    const response = editingTransactionId
+      ? await editTransaction(editingTransactionId, payload)
+      : await addTransaction(payload);
+
     if (response?.status === "success") {
-      setFormData(defaultFormState);
+      resetForm();
+    }
+  };
+
+  const handleCategoryReassign = async (event) => {
+    event.preventDefault();
+    const payload = {
+      oldCategory: categoryEdit.oldCategory.trim(),
+      newCategory: categoryEdit.newCategory.trim(),
+    };
+
+    const response = await reassignTransactionCategory(payload);
+    if (response?.status === "success") {
+      setCategoryEdit({ oldCategory: "", newCategory: "" });
+      if (
+        editingTransactionId &&
+        formData.category.trim() === payload.oldCategory
+      ) {
+        setFormData((prev) => ({ ...prev, category: payload.newCategory }));
+      }
     }
   };
 
@@ -104,6 +142,14 @@ function Transactions() {
       currency: "USD",
     }).format(Number(value || 0));
 
+  const categories = useMemo(() => {
+    return Array.from(
+      new Set(
+        transactions.map((item) => (item.category || "General").trim() || "General")
+      )
+    ).sort((a, b) => a.localeCompare(b));
+  }, [transactions]);
+
   return (
     <Container className="py-5">
       <Row className="mb-4">
@@ -118,7 +164,9 @@ function Transactions() {
         <Col lg={4}>
           <Card className="shadow-sm">
             <Card.Body>
-              <Card.Title className="mb-3">Add Transaction</Card.Title>
+              <Card.Title className="mb-3">
+                {editingTransactionId ? "Edit Transaction" : "Add Transaction"}
+              </Card.Title>
               <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="detail">
                   <Form.Label>Detail</Form.Label>
@@ -157,27 +205,20 @@ function Transactions() {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="category">
                   <Form.Label>Category</Form.Label>
-                  {formData.type === "credit" ? (
-                    <Form.Select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      required
-                    >
-                      {creditCategories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  ) : (
-                    <Form.Control
-                      type="text"
-                      name="category"
-                      value="General"
-                      readOnly
-                    />
-                  )}
+                  <Form.Control
+                    type="text"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    list="categories-list"
+                    placeholder="e.g. Groceries, Rent, Salary"
+                    required
+                  />
+                  <datalist id="categories-list">
+                    {categories.map((category) => (
+                      <option key={category} value={category} />
+                    ))}
+                  </datalist>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="transactionDate">
                   <Form.Label>Date</Form.Label>
@@ -191,13 +232,66 @@ function Transactions() {
                 {errorMessage ? (
                   <div className="text-danger mb-3">{errorMessage}</div>
                 ) : null}
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-100"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Saving..." : "Save Transaction"}
+                <div className="d-flex gap-2">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    className="w-100"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? "Saving..."
+                      : editingTransactionId
+                        ? "Update Transaction"
+                        : "Save Transaction"}
+                  </Button>
+                  {editingTransactionId ? (
+                    <Button
+                      type="button"
+                      variant="outline-secondary"
+                      onClick={resetForm}
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </Button>
+                  ) : null}
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+          <Card className="shadow-sm mt-4">
+            <Card.Body>
+              <Card.Title className="mb-3">Manage Categories</Card.Title>
+              <Form onSubmit={handleCategoryReassign}>
+                <Form.Group className="mb-3" controlId="oldCategory">
+                  <Form.Label>Category to Reassign</Form.Label>
+                  <Form.Select
+                    name="oldCategory"
+                    value={categoryEdit.oldCategory}
+                    onChange={handleCategoryEditChange}
+                    required
+                  >
+                    <option value="">Select category</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="newCategory">
+                  <Form.Label>New Category Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="newCategory"
+                    value={categoryEdit.newCategory}
+                    onChange={handleCategoryEditChange}
+                    placeholder="Type the new category name"
+                    required
+                  />
+                </Form.Group>
+                <Button type="submit" variant="secondary" disabled={isSubmitting}>
+                  {isSubmitting ? "Updating..." : "Rename & Reassign"}
                 </Button>
               </Form>
             </Card.Body>
@@ -234,6 +328,7 @@ function Transactions() {
                       <th>Date</th>
                       <th>Type</th>
                       <th className="text-end">Amount</th>
+                      <th className="text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -255,11 +350,20 @@ function Transactions() {
                           <td className="text-end">
                             {formatCurrency(item.amount)}
                           </td>
+                          <td className="text-end">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => handleEditClick(item)}
+                            >
+                              Edit
+                            </Button>
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="text-center text-muted py-4">
+                        <td colSpan={6} className="text-center text-muted py-4">
                           No transactions yet. Add your first one.
                         </td>
                       </tr>

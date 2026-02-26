@@ -3,6 +3,8 @@ import axios from "axios";
 const apiEP = import.meta.env.PROD
   ? "/api/v1/"
   : "http://localhost:8000/api/v1/";
+
+  
 export const apiHelper = async ({ method, endpoint, data }) => {
   try {
     // Codex: Attach access token when present for protected endpoints.

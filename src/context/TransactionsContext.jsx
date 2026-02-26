@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import {
   createTransaction as createTransactionApi,
   fetchTransactions,
+  reassignCategory as reassignCategoryApi,
+  updateTransaction as updateTransactionApi,
 } from "../api/transactionApi";
 
 const TransactionsContext = createContext(null);
@@ -51,6 +53,38 @@ export function TransactionsProvider({ children }) {
     [loadTransactions]
   );
 
+  const editTransaction = useCallback(
+    async (transactionId, payload) => {
+      setIsSubmitting(true);
+      const response = await updateTransactionApi(transactionId, payload);
+      if (response?.status === "success") {
+        setErrorMessage("");
+        await loadTransactions();
+      } else {
+        setErrorMessage(response?.message || "Unable to update transaction.");
+      }
+      setIsSubmitting(false);
+      return response;
+    },
+    [loadTransactions]
+  );
+
+  const reassignTransactionCategory = useCallback(
+    async (payload) => {
+      setIsSubmitting(true);
+      const response = await reassignCategoryApi(payload);
+      if (response?.status === "success") {
+        setErrorMessage("");
+        await loadTransactions();
+      } else {
+        setErrorMessage(response?.message || "Unable to reassign category.");
+      }
+      setIsSubmitting(false);
+      return response;
+    },
+    [loadTransactions]
+  );
+
   const value = useMemo(
     () => ({
       transactions,
@@ -60,6 +94,8 @@ export function TransactionsProvider({ children }) {
       hasLoaded,
       loadTransactions,
       addTransaction,
+      editTransaction,
+      reassignTransactionCategory,
     }),
     [
       transactions,
@@ -69,6 +105,8 @@ export function TransactionsProvider({ children }) {
       hasLoaded,
       loadTransactions,
       addTransaction,
+      editTransaction,
+      reassignTransactionCategory,
     ]
   );
 

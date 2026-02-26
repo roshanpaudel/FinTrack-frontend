@@ -16,3 +16,21 @@ export const createTransaction = (payload) => {
   };
   return apiHelper(obj);
 };
+
+export const updateTransaction = (transactionId, payload) => {
+  const obj = {
+    method: "PUT",
+    endpoint: `transactions/${transactionId}`,
+    data: payload,
+  };
+  return apiHelper(obj);
+};
+
+export const reassignCategory = (payload) => {
+  const obj = {
+    method: "PATCH",
+    endpoint: "transactions/categories/reassign",
+    data: payload,
+  };
+  return apiHelper(obj);
+};
