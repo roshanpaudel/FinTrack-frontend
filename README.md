@@ -56,9 +56,25 @@ yarn start
 ```
 
 By default, the app runs on:  
-**http://localhost:3000**
+**http://localhost:5173**
 
-Make sure the backend API is running at **http://localhost:5000** or update the API base URL in the frontend code accordingly.
+Make sure the backend API is running at **http://localhost:8000**.
+
+Optional: create a `.env` file for production API configuration:
+
+```env
+VITE_API_BASE_URL=https://your-backend-domain.vercel.app
+```
+
+If `VITE_API_BASE_URL` is not set:
+- development uses `http://localhost:8000`
+- production uses same-origin `/api/v1/`
+
+### Deploying to Vercel
+
+- Deploy the `ft-client` directory as its own Vercel project.
+- `vercel.json` is included to support SPA route fallback.
+- Set `VITE_API_BASE_URL` to your backend Vercel URL when frontend and backend are on different domains.
 
 ---
 

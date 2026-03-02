@@ -38,7 +38,7 @@ export const SignUpForm = () => {
       !responseEmail.userExists &&
       formData.password === formData.confirmPassword
     ) {
-      const { confirmPassword, ...dataToSend } = formData;
+      const { confirmPassword: _confirmPassword, ...dataToSend } = formData;
       // send data to API
       const responseSignup = await insertSignupData(dataToSend);
       console.log("Form submitted:", dataToSend);

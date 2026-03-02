@@ -10,7 +10,7 @@ const getTokenExpiry = (token) => {
       atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
     );
     return decoded?.exp ? decoded.exp * 1000 : null;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
